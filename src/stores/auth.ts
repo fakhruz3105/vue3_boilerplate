@@ -1,11 +1,6 @@
-import { POST } from '@/utils/APICaller'
-import { defineStore } from 'pinia'
-
-export enum Role {
-  SUPER_ADMIN = 0,
-  ADMIN = 1,
-  VISITOR,
-}
+import { GET, POST } from '@/utils/APICaller';
+import { defineStore } from 'pinia';
+import { Role } from '../enum';
 
 export const useAuthStore = defineStore({
   id: 'auth',
@@ -15,34 +10,44 @@ export const useAuthStore = defineStore({
       id: '',
       email: '',
       name: '',
-      role: Role.VISITOR
+      role: Role.VISITOR,
     },
-    error: ''
+    error: '',
   }),
   actions: {
     async login(email: string, password: string) {
       try {
-        const user = await POST('/api/auth/login', { email, password })
-        Object.assign(this.user, user)
-        this.loggedIn = true
+        const user = await POST('/api/auth/login', { email, password });
+        Object.assign(this.user, user);
+        this.loggedIn = true;
       } catch (error) {
-        this.loggedIn = false
+        this.loggedIn = false;
+        throw error;
       }
     },
     async logout() {
       try {
-        await POST('/api/auth/logout', null, { withCredentials: true })
+        await POST('/api/auth/logout');
       } catch (error) {
-        throw error
+        throw error;
       } finally {
-        this.loggedIn = false
+        this.loggedIn = false;
         this.user = {
           id: '',
           email: '',
           name: '',
-          role: Role.VISITOR
-        }
+          role: Role.VISITOR,
+        };
       }
-    }
-  }
-})
+    },
+    async fetchUserDetails() {
+      try {
+        const user = await GET('/api/auth/user-details');
+        Object.assign(this.user, user);
+        this.loggedIn = true;
+      } catch (error) {
+        this.loggedIn = false;
+      }
+    },
+  },
+});

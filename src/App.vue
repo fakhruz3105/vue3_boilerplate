@@ -1,186 +1,169 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { RouterView } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { useNotificationStore } from '@/stores/notification';
+import { storeToRefs } from 'pinia';
 import {
-  TransitionRoot,
-  TransitionChild,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from '@headlessui/vue'
-import { ref } from 'vue';
+  AlertOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from '@ant-design/icons-vue';
 
-const isOpen = ref(true)
+const { login } = useAuthStore();
 
-function closeModal() {
-  isOpen.value = false
-}
-function openModal() {
-  isOpen.value = true
-}
+const notificationStore = useNotificationStore();
+const { holdNotification, continueNotificationClearance, removeNotification } = notificationStore;
+
+const { notifications } = storeToRefs(notificationStore);
+
+// onMounted(async () => {
+//   await login('superadmin@dev.com', 'P@ssw0rd!');
+// });
 </script>
 
 <template>
-  <div class="fixed inset-0 flex items-center justify-center">
-    <button
-      type="button"
-      @click="openModal"
-      class="rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-    >
-      Open dialog
-    </button>
-  </div>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="fixed inset-0 bg-black bg-opacity-25" />
-      </TransitionChild>
-
-      <div class="fixed inset-0 overflow-y-auto">
+  <RouterView />
+  <div class="fixed top-0 right-0 p-2 w-[350px] transition-all ease z-[1000]">
+    <TransitionGroup name="notification">
+      <template v-for="{ id, message, type } of notifications" :key="id">
         <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+          v-if="type === 'error'"
+          class="flex items-center w-full p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 z-[100]"
+          role="alert"
+          @mouseenter="holdNotification(id)"
+          @mouseleave="continueNotificationClearance(id)"
         >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
+          <div
+            class="bg-gradient-to-r from-red-400 via-red-500 to-red-600 p-4 rounded-xl flex justify-center items-center"
           >
-            <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+            <CloseOutlined class="text-white" />
+          </div>
+          <div class="ml-3 text-sm font-normal break-all">{{ message }}</div>
+          <button
+            type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            aria-label="Close"
+            @click="removeNotification(id)"
+          >
+            <span class="sr-only">Close</span>
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <DialogTitle
-                as="h3"
-                class="text-lg font-medium leading-6 text-gray-900"
-              >
-                Payment successful
-              </DialogTitle>
-              <div class="mt-2">
-                <p class="text-sm text-gray-500">
-                  Your payment has been successfully submitted. We’ve sent you
-                  an email with all of the details of your order.
-                </p>
-              </div>
-
-              <div class="mt-4">
-                <button
-                  type="button"
-                  class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                  @click="closeModal"
-                >
-                  Got it, thanks!
-                </button>
-              </div>
-            </DialogPanel>
-          </TransitionChild>
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
         </div>
-      </div>
-    </Dialog>
-  </TransitionRoot>
+        <div
+          v-else-if="type === 'success'"
+          class="flex items-center w-full p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 z-[100]"
+          role="alert"
+          @mouseenter="holdNotification(id)"
+          @mouseleave="continueNotificationClearance(id)"
+        >
+          <div
+            class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 p-4 rounded-xl flex justify-center items-center"
+          >
+            <CheckOutlined class="text-white" />
+          </div>
+          <div class="ml-3 text-sm font-normal break-all">{{ message }}</div>
+          <button
+            type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            aria-label="Close"
+            @click="removeNotification(id)"
+          >
+            <span class="sr-only">Close</span>
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div
+          v-else
+          class="flex items-center w-full p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 z-[100]"
+          role="alert"
+          @mouseenter="holdNotification(id)"
+          @mouseleave="continueNotificationClearance(id)"
+        >
+          <div
+            class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 p-4 rounded-xl flex justify-center items-center"
+          >
+            <AlertOutlined class="text-white" />
+          </div>
+          <div class="ml-3 text-sm font-normal break-all">{{ message }}</div>
+          <button
+            type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            aria-label="Close"
+            @click="removeNotification(id)"
+          >
+            <span class="sr-only">Close</span>
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </template>
+    </TransitionGroup>
+  </div>
 </template>
+
 <style>
-@import '@/assets/base.css';
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@200&display=swap');
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   font-weight: normal;
 }
 
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+body {
+  min-height: 100%;
+  color: #474d58;
+  background: #fbf6f0;
+  line-height: 1.6;
+  font-family: 'Mulish', sans-serif;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.card {
+  @apply bg-white rounded-xl p-4 m-4;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+.notification-enter-active,
+.notification-leave-active {
+  transition: all 0.5s ease;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.notification-enter-from,
+.notification-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

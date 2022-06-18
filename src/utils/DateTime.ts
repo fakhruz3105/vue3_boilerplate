@@ -3,6 +3,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import timezonePlugin from 'dayjs/plugin/timezone';
 
+const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
 export class DateTime {
   private _time: number;
   private timezone: string;
@@ -84,5 +86,11 @@ export class DateTime {
   setTimezone(timezone: string) {
     this.timezone = timezone;
     return this;
+  }
+
+  getDayName(markAsToday = false) {
+    let name = day[this.get('day')]
+    if (markAsToday) name += ' (Today)'
+    return name
   }
 }
