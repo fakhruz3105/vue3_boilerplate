@@ -11,7 +11,8 @@ const login = () => {
 
 <template>
   <div class="p-4">
-    <div class="bg-white rounded-xl p-4 m-4 mb-8 flex justify-end">
+    <div class="bg-white rounded-xl p-4 m-4 mb-8 flex justify-between items-center">
+      <span class="text-xl font-bold">Smart Agriculture</span>
       <button
         @click="login"
         class="font-semibold text-white bg-[#884FFB] hover:bg-[#49209B] rounded-xl px-5 py-1"

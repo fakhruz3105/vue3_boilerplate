@@ -196,16 +196,15 @@ const barChartSeries = computed(() => [
   { name: 'Humidity (%)', data: summary.value.humidity },
   {
     name: 'Ph ',
-    data: Array(
-      summary.value.temperature.length -
-        summary.value.temperature.filter((e) => e).length,
-    )
+    data: Array(summary.value.temperature.length)
       .fill(0)
-      .concat(
-        Array(summary.value.temperature.filter((e) => e).length).fill(
-          (Math.random() * (7 - 5) + 5) as any,
-        ),
-      ),
+      .map((_, i) => {
+        if (summary.value.temperature[i] === 0) {
+          return 0
+        }
+
+        return Math.random() * (7 - 5) + 5        
+      }),
   },
 ]);
 
