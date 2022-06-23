@@ -90,7 +90,7 @@ async function saveSensorType() {
 }
 
 async function saveNewSensor() {
-  const { id, sensorType } = unref(selectedSensor);
+  const { id, sensorType, condition } = unref(selectedSensor);
   const { longitude, latitude } = unref(selectedSensorLocation);
   if (!id) {
     await POST(
@@ -101,7 +101,7 @@ async function saveNewSensor() {
   } else {
     await PUT(
       '/api/sensor-management/sensor',
-      { id, sensorTypeId: sensorType, longitude, latitude },
+      { id, sensorTypeId: sensorType, condition, longitude, latitude },
       { withCredentials: true },
     );
   }
