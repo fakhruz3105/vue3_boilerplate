@@ -15,6 +15,7 @@ import { useNotificationStore } from '@/stores/notification';
 
 const { addNotification } = useNotificationStore();
 
+const userList: Ref<{ id: string; name: string }[]> = ref([]);
 const sensorTypes: Ref<SensorType[]> = ref([]);
 const sensors: Ref<Sensor[]> = ref([]);
 
@@ -112,6 +113,7 @@ async function saveNewSensor() {
 }
 
 onMounted(async () => {
+  userList.value = await GET('/api/user/all/simple', { withCredentials: true });
   sensorTypes.value = await GET('/api/sensor-management/type/all', {
     withCredentials: true,
   });
@@ -202,6 +204,7 @@ onMounted(async () => {
           <tr>
             <th scope="col" class="px-6 py-3">Sensor ID</th>
             <th scope="col" class="px-6 py-3">Type</th>
+            <th scope="col" class="px-6 py-3">Installer</th>
             <th scope="col" class="px-6 py-3">Longitude</th>
             <th scope="col" class="px-6 py-3">Latitude</th>
             <th scope="col" class="px-6 py-3">Condition</th>
@@ -213,7 +216,7 @@ onMounted(async () => {
         <tbody>
           <template v-if="sensors.length > 0">
             <tr
-              v-for="{ id, location, condition, sensorType } of sensors"
+              v-for="{ id, location, condition, installer, sensorType } of sensors"
               class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
             >
               <th
@@ -228,6 +231,9 @@ onMounted(async () => {
               >
                 {{ sensorTypes.find((e) => e.id === sensorType)?.name }}
               </th>
+              <td class="px-6 py-4">
+                {{ userList.find((e) => e.id === installer)?.name }}
+              </td>
               <td class="px-6 py-4">
                 {{ location.longitude.toFixed(6) }}
               </td>

@@ -14,6 +14,7 @@ export interface Sensor {
   location: { latitude: number; longitude: number };
   condition: boolean;
   sensorType: string;
+  installer?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +33,7 @@ export interface PumpSchedule {
   id?: string;
   time: string;
   repeatDaily: boolean;
+  setter: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

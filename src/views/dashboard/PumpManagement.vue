@@ -15,6 +15,7 @@ import { useNotificationStore } from '@/stores/notification';
 
 const { addNotification } = useNotificationStore();
 
+const userList: Ref<{ id: string; name: string }[]> = ref([]);
 const pumpSchedules: Ref<PumpSchedule[]> = ref([]);
 const selectedpumpSchedules = ref({} as PumpSchedule);
 const showEditPumpScheduleModal = ref(false);
@@ -105,7 +106,12 @@ async function togglePump() {
   await fetchPumpState();
 }
 
+async function fetchUserList() {
+  userList.value = await GET('/api/user/all/simple', { withCredentials: true });
+}
+
 onMounted(async () => {
+  await fetchUserList();
   await fetchSchedules();
   await fetchPumpState();
 });
@@ -130,6 +136,7 @@ onMounted(async () => {
           >
             <tr>
               <th scope="col" class="px-6 py-3">Date Created</th>
+              <th scope="col" class="px-6 py-3">Setter</th>
               <th scope="col" class="px-6 py-3">Time</th>
               <th scope="col" class="px-6 py-3">Repeat Daily</th>
               <th scope="col" class="px-6 py-3">
@@ -140,7 +147,7 @@ onMounted(async () => {
           <tbody>
             <template v-if="pumpSchedules.length > 0">
               <tr
-                v-for="{ id, time, repeatDaily, createdAt } of pumpSchedules"
+                v-for="{ id, time, repeatDaily, setter, createdAt } of pumpSchedules"
                 class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
               >
                 <th
@@ -148,6 +155,9 @@ onMounted(async () => {
                   class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap"
                 >
                   {{ new DateTime(createdAt).format('DD/MM/YYYY') }}
+                </th>
+                <th class="px-6 py-4">
+                  {{ userList.find((e) => e.id === setter)?.name }}
                 </th>
                 <th class="px-6 py-4">
                   {{ time }}
@@ -179,7 +189,7 @@ onMounted(async () => {
               <tr
                 class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
               >
-                <td colspan="4" class="px-6 py-4 text-center">-- NONE --</td>
+                <td colspan="5" class="px-6 py-4 text-center">-- NONE --</td>
               </tr>
             </template>
           </tbody>

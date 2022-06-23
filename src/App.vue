@@ -147,7 +147,7 @@ const { notifications } = storeToRefs(notificationStore);
 body {
   min-height: 100%;
   color: #474d58;
-  background: #fbf6f0;
+  @apply bg-slate-100;
   line-height: 1.6;
   font-family: 'Mulish', sans-serif;
 }
